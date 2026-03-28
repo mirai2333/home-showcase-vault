@@ -21,27 +21,30 @@ export async function createProduct(data: {
   }
 
   try {
-    // 1. Find or create category
+    // 1. Find or create category using an upsert (one round trip)
     let categoryId: string | undefined = undefined;
     if (data.category) {
       const slug = data.category.toLowerCase().trim().replace(/\s+/g, "-");
-      const existing = await db
-        .select()
-        .from(categoriesSchema)
-        .where(eq(categoriesSchema.slug, slug))
-        .limit(1);
-
-      if (existing.length > 0) {
-        categoryId = existing[0].id;
-      } else {
-        const inserted = await db
+      
+      try {
+        const result = await db
           .insert(categoriesSchema)
           .values({
             name: data.category,
             slug,
           })
+          .onConflictDoUpdate({
+            target: categoriesSchema.slug,
+            set: { name: data.category }, // Refresh the name if it matches
+          })
           .returning();
-        categoryId = inserted[0].id;
+        
+        categoryId = result[0]?.id;
+      } catch (catError) {
+        console.error("Error handling category:", catError);
+        // Fallback or continue without category if it's non-critical, 
+        // but here we keep it for consistency
+        throw catError;
       }
     }
 
@@ -57,8 +60,12 @@ export async function createProduct(data: {
       shop: data.shop,
     });
   } catch (error) {
-    console.error("Failed to create product:", error);
-    throw new Error("Failed to create product");
+    console.error("Detailed product creation error:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Stack trace:", error.stack);
+    }
+    throw new Error("Failed to create product. The database connection timed out or failed.");
   }
 
   revalidatePath("/");
