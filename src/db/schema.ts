@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, decimal, varchar } from "drizzle-orm/pg-core";
 
 export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -20,6 +20,8 @@ export const products = pgTable("products", {
   originalUrl: text("original_url"),
   imageUrl: text("image_url"),
   categoryId: uuid("category_id").references(() => categories.id),
+  platform: varchar("platform", { length: 64 }),
+  shop: varchar("shop", { length: 256 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

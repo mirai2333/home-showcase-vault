@@ -7,12 +7,14 @@ import { db } from "@/db";
 import { products, categories as categoriesSchema } from "@/db/schema";
 import { eq, ilike, and } from "drizzle-orm";
 
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=800";
+
 const MOCK_PRODUCTS = [
-  { id: "m1", name: "Minimalist Chair", category: "Furniture", categorySlug: "furniture", image: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&q=80&w=800", aspect: "aspect-[3/4]" },
-  { id: "m2", name: "Ceramic Vase", category: "Decor", categorySlug: "decor", image: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&q=80&w=800", aspect: "aspect-[4/5]" },
-  { id: "m3", name: "Table Lamp", category: "Lighting", categorySlug: "lighting", image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=800", aspect: "aspect-square" },
-  { id: "m4", name: "Linen Sofa", category: "Furniture", categorySlug: "furniture", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800", aspect: "aspect-[4/3]" },
-  { id: "m5", name: "Wooden Desk", category: "Workspace", categorySlug: "workspace", image: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&q=80&w=800", aspect: "aspect-[3/4]" },
+  { id: "m1", name: "Minimalist Chair", category: "Furniture", categorySlug: "furniture", image: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&q=80&w=800", aspect: "aspect-[3/4]", description: "Elegant wooden chair.", platform: "Taobao", shop: "Nordic Home" },
+  { id: "m2", name: "Ceramic Vase", category: "Decor", categorySlug: "decor", image: null, aspect: "aspect-[4/5]", description: "", platform: "Amazon", shop: "Artisanal Studio" },
+  { id: "m3", name: "Table Lamp", category: "Lighting", categorySlug: "lighting", image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=800", aspect: "aspect-square", description: "Soft lighting for study.", platform: "eBay", shop: "Vintage Finds" },
+  { id: "m4", name: "Linen Sofa", category: "Furniture", categorySlug: "furniture", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800", aspect: "aspect-[4/3]", description: "Comfortable three-seater.", platform: "Tmall", shop: "Cozy Life" },
+  { id: "m5", name: "Wooden Desk", category: "Workspace", categorySlug: "workspace", image: null, aspect: "aspect-[3/4]", description: "", platform: "IKEA", shop: "Office Essentials" },
 ];
 
 const MOCK_CATEGORIES = [
@@ -57,6 +59,9 @@ export default async function Home({
         .select({
           id: products.id,
           name: products.name,
+          description: products.description,
+          platform: products.platform,
+          shop: products.shop,
           categoryName: categoriesSchema.name,
           categorySlug: categoriesSchema.slug,
           image: products.imageUrl,
@@ -74,10 +79,13 @@ export default async function Home({
       displayProducts = results.map((r) => ({
         id: r.id,
         name: r.name,
+        description: r.description || "",
+        platform: r.platform || "",
+        shop: r.shop || "",
         category: r.categoryName || "Uncategorized",
         categorySlug: r.categorySlug || "",
-        image: r.image || "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&q=80&w=800",
-        aspect: "aspect-[3/4]", // We can randomize or store in DB later
+        image: r.image || DEFAULT_IMAGE,
+        aspect: "aspect-[3/4]", 
       }));
     } catch (e) {
       console.error("Failed to connect to real DB, falling back to mock", e);
@@ -135,7 +143,7 @@ export default async function Home({
               >
                 <div className={`relative w-full ${product.aspect} rounded-xl overflow-hidden bg-muted shadow-sm transition-all duration-500 hover:shadow-xl`}>
                   <Image
-                    src={product.image}
+                    src={product.image || DEFAULT_IMAGE}
                     alt={product.name}
                     fill
                     unoptimized
@@ -146,12 +154,22 @@ export default async function Home({
                   <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <div className="mt-2.5 px-0.5">
-                  <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase mb-0.5">
-                    {product.category}
-                  </p>
-                  <h3 className="text-sm md:text-base font-serif text-foreground group-hover:text-primary transition-colors leading-tight">
+                  <div className="flex justify-between items-start gap-2 mb-0.5">
+                    <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+                      {product.category}
+                    </p>
+                    {product.shop && (
+                      <p className="text-[9px] font-medium text-primary/80 truncate max-w-[40%]">
+                        {product.shop}
+                      </p>
+                    )}
+                  </div>
+                  <h3 className="text-sm md:text-base font-serif text-foreground group-hover:text-primary transition-colors leading-tight mb-1">
                     {product.name}
                   </h3>
+                  <p className="text-[11px] text-muted-foreground line-clamp-1 italic">
+                    {product.description || product.platform}
+                  </p>
                 </div>
               </div>
             ))}

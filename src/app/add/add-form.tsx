@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, Loader2, Link as LinkIcon, DollarSign, Tag, AlignLeft } from "lucide-react";
+import { UploadCloud, Loader2, Link as LinkIcon, DollarSign, Tag, AlignLeft, ShoppingBag, Globe } from "lucide-react";
 
 export function AddForm() {
   const [isParsing, setIsParsing] = useState(false);
@@ -12,6 +12,8 @@ export function AddForm() {
     price: "",
     category: "",
     description: "",
+    platform: "",
+    shop: "",
     originalUrl: "",
   });
 
@@ -25,6 +27,8 @@ export function AddForm() {
         price: "199.99",
         category: "Decor",
         description: "A beautifully curated placeholder item identified by the AI vision module.",
+        platform: "Taobao",
+        shop: "Nordic Design Store",
       });
       setIsParsing(false);
       setParsed(true);
@@ -88,6 +92,38 @@ export function AddForm() {
                 placeholder="Product name"
                 className="w-full bg-transparent border-b border-border text-2xl md:text-3xl font-serif px-1 py-2 focus:outline-hidden focus:border-primary transition-colors placeholder:text-muted"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-6 pt-4">
+              {/* Platform */}
+              <div>
+                <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
+                  <Globe className="w-3.5 h-3.5" /> Platform
+                </label>
+                <input
+                  type="text"
+                  name="platform"
+                  value={formData.platform}
+                  onChange={handleChange}
+                  placeholder="e.g. Taobao, Amazon"
+                  className="w-full bg-muted/50 border border-transparent focus:border-border focus:bg-transparent rounded-lg px-3 py-2.5 text-sm font-medium outline-hidden transition-all"
+                />
+              </div>
+
+              {/* Shop */}
+              <div>
+                <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
+                  <ShoppingBag className="w-3.5 h-3.5" /> Shop
+                </label>
+                <input
+                  type="text"
+                  name="shop"
+                  value={formData.shop}
+                  onChange={handleChange}
+                  placeholder="Store name"
+                  className="w-full bg-muted/50 border border-transparent focus:border-border focus:bg-transparent rounded-lg px-3 py-2.5 text-sm font-medium outline-hidden transition-all"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6 pt-4">
