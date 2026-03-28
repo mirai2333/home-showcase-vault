@@ -95,29 +95,29 @@ export default async function Home({
   }
 
   return (
-    <main className="flex-1 flex flex-col px-6 py-12 md:px-12 lg:px-24">
-      <header className="flex justify-between items-center w-full max-w-screen-2xl mx-auto mb-20">
-        <h1 className="text-2xl md:text-4xl font-serif font-medium tracking-wide text-primary">
+    <main className="flex-1 flex flex-col px-4 py-8 md:px-8 lg:px-12">
+      <header className="flex justify-between items-center w-full max-w-screen-2xl mx-auto mb-12">
+        <h1 className="text-xl md:text-3xl font-serif font-medium tracking-wide text-primary">
           Showcase Vault
         </h1>
         <div className="flex items-center gap-6">
           <ThemeToggle />
           <Link
             href="/add"
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-sm"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition-all shadow-sm"
           >
-            <Plus className="w-4 h-4" />
-            <span className="text-sm font-medium tracking-wide">Add Item</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span className="text-xs font-medium tracking-wide">Add Item</span>
           </Link>
         </div>
       </header>
 
       <section className="w-full max-w-screen-2xl mx-auto">
-        <div className="mb-12">
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif mb-6 text-foreground leading-tight">
+        <div className="mb-8">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif mb-4 text-foreground leading-tight">
             Curated elegance.
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground font-sans max-w-2xl leading-relaxed">
+          <p className="text-base md:text-lg text-muted-foreground font-sans max-w-xl leading-relaxed">
             Your personal catalog for exquisitely designed objects, beautifully structured and accessible.
           </p>
         </div>
@@ -127,13 +127,13 @@ export default async function Home({
 
         {/* Asymmetrical Grid Layout */}
         {displayProducts.length > 0 ? (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 space-y-8 mt-8">
+          <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 space-y-4 mt-6">
             {displayProducts.map((product, index) => (
               <div
                 key={product.id}
                 className="break-inside-avoid group cursor-pointer"
               >
-                <div className={`relative w-full ${product.aspect} rounded-2xl overflow-hidden bg-muted shadow-sm transition-all duration-500 hover:shadow-xl`}>
+                <div className={`relative w-full ${product.aspect} rounded-xl overflow-hidden bg-muted shadow-sm transition-all duration-500 hover:shadow-xl`}>
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -145,11 +145,11 @@ export default async function Home({
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <div className="mt-4 px-1">
-                  <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase mb-1">
+                <div className="mt-2.5 px-0.5">
+                  <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase mb-0.5">
                     {product.category}
                   </p>
-                  <h3 className="text-lg font-serif text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="text-sm md:text-base font-serif text-foreground group-hover:text-primary transition-colors leading-tight">
                     {product.name}
                   </h3>
                 </div>
