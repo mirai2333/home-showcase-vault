@@ -6,7 +6,7 @@ import { UploadCloud, Loader2, Link as LinkIcon, DollarSign, Tag, AlignLeft } fr
 export function AddForm() {
   const [isParsing, setIsParsing] = useState(false);
   const [parsed, setParsed] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -39,22 +39,22 @@ export function AddForm() {
     <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
       {/* Upload Column */}
       <div className="md:col-span-2 space-y-4">
-        <div 
+        <div
           onClick={handleSimulateParse}
-          className={`aspect-[4/5] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-300 ${isParsing ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${parsed ? "bg-muted border-solid" : ""}`}
+          className={`aspect-4/5 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-300 ${isParsing ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${parsed ? "bg-muted border-solid" : ""}`}
         >
           {isParsing ? (
-             <div className="flex flex-col items-center gap-4 text-primary animate-pulse">
-               <Loader2 className="w-8 h-8 animate-spin" />
-               <span className="text-sm font-medium tracking-wide">Parsing Image...</span>
-             </div>
+            <div className="flex flex-col items-center gap-4 text-primary animate-pulse">
+              <Loader2 className="w-8 h-8 animate-spin" />
+              <span className="text-sm font-medium tracking-wide">Parsing Image...</span>
+            </div>
           ) : parsed ? (
             <div className="flex flex-col items-center gap-3 text-muted-foreground">
               <UploadCloud className="w-8 h-8 opacity-50" />
               <span className="text-sm tracking-wide">Image attached.</span>
-              <button 
+              <button
                 className="mt-2 text-xs font-medium text-primary hover:underline underline-offset-4"
-                onClick={(e) => { e.stopPropagation(); setParsed(false); setFormData({...formData, name:"", price:"", category:"", description:""}) }}
+                onClick={(e) => { e.stopPropagation(); setParsed(false); setFormData({ ...formData, name: "", price: "", category: "", description: "" }) }}
               >
                 Reset
               </button>
@@ -80,8 +80,8 @@ export function AddForm() {
             {/* Title */}
             <div>
               <label className="block text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">Title</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -96,8 +96,8 @@ export function AddForm() {
                 <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
                   <Tag className="w-3.5 h-3.5" /> Category
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
@@ -111,8 +111,8 @@ export function AddForm() {
                 <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
                   <DollarSign className="w-3.5 h-3.5" /> Price
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
@@ -124,37 +124,37 @@ export function AddForm() {
 
             {/* Original URL */}
             <div className="pt-4">
-               <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
-                  <LinkIcon className="w-3.5 h-3.5" /> Original URL
-                </label>
-                <input 
-                  type="url" 
-                  name="originalUrl"
-                  value={formData.originalUrl}
-                  onChange={handleChange}
-                  placeholder="https://original-store.com/item"
-                  className="w-full bg-muted/50 border border-transparent focus:border-border focus:bg-transparent rounded-lg px-3 py-2.5 text-sm font-medium outline-hidden transition-all"
-                />
+              <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
+                <LinkIcon className="w-3.5 h-3.5" /> Original URL
+              </label>
+              <input
+                type="url"
+                name="originalUrl"
+                value={formData.originalUrl}
+                onChange={handleChange}
+                placeholder="https://original-store.com/item"
+                className="w-full bg-muted/50 border border-transparent focus:border-border focus:bg-transparent rounded-lg px-3 py-2.5 text-sm font-medium outline-hidden transition-all"
+              />
             </div>
 
             {/* Description */}
             <div className="pt-4">
-               <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
-                  <AlignLeft className="w-3.5 h-3.5" /> Description
-                </label>
-                <textarea 
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Add notes about why you saved this..."
-                  rows={4}
-                  className="w-full bg-transparent border border-border rounded-xl px-4 py-3 text-sm focus:outline-hidden focus:border-primary transition-colors resize-none leading-relaxed"
-                />
+              <label className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 ml-1">
+                <AlignLeft className="w-3.5 h-3.5" /> Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Add notes about why you saved this..."
+                rows={4}
+                className="w-full bg-transparent border border-border rounded-xl px-4 py-3 text-sm focus:outline-hidden focus:border-primary transition-colors resize-none leading-relaxed"
+              />
             </div>
           </div>
 
           <div className="pt-8">
-            <button 
+            <button
               type="button"
               className="w-full bg-foreground text-background font-medium py-4 rounded-xl shadow-lg hover:bg-foreground/90 transition-all hover:-translate-y-0.5"
             >
