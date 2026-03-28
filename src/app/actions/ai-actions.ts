@@ -15,7 +15,7 @@ export async function extractFromImage(base64Image: string) {
         "HTTP-Referer": "https://showcase-vault.vercel.app",
       },
       body: JSON.stringify({
-        model: "nvidia/nemotron-nano-12b-v2-vl:free",
+        model: "google/gemini-2.5-flash-lite",
         messages: [
           {
             role: "user",

@@ -3,10 +3,12 @@
 import { useState, useRef } from "react";
 import { UploadCloud, Loader2, Link as LinkIcon, DollarSign, Tag, AlignLeft, ShoppingBag, Globe } from "lucide-react";
 import { extractFromImage } from "@/app/actions/ai-actions";
+import { createProduct } from "@/app/actions/product-actions";
 
 export function AddForm() {
   const [isParsing, setIsParsing] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [parsed, setParsed] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +37,7 @@ export function AddForm() {
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 2560;
+          const MAX_WIDTH = 1080;
           const MAX_HEIGHT = 1440;
           let width = img.width;
           let height = img.height;
@@ -46,19 +48,22 @@ export function AddForm() {
               width = MAX_WIDTH;
             }
           } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
+            if (width > MAX_WIDTH) {
+              height = (MAX_WIDTH / width) * height;
+              width = MAX_WIDTH;
             }
           }
 
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext("2d");
-          ctx?.drawImage(img, 0, 0, width, height);
+          if (ctx) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(img, 0, 0, width, height);
+          }
 
-          // Quality 0.9 and 2560px max to keep high detail for AI while staying around 2MB
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.5);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
           resolve(dataUrl);
         };
         img.onerror = reject;
@@ -111,6 +116,25 @@ export function AddForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name) {
+      setError("Please provide at least a title.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await createProduct(formData);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      setError("Failed to add piece to vault. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -167,7 +191,7 @@ export function AddForm() {
 
       {/* Form Column */}
       <div className="md:col-span-3">
-        <form className="space-y-6 bg-background rounded-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-background rounded-2xl">
           <div className="space-y-4">
             {/* Title */}
             <div>
@@ -279,10 +303,18 @@ export function AddForm() {
 
           <div className="pt-8">
             <button
-              type="button"
-              className="w-full bg-foreground text-background font-medium py-4 rounded-xl shadow-lg hover:bg-foreground/90 transition-all hover:-translate-y-0.5"
+              type="submit"
+              disabled={isSubmitting || isParsing || isCompressing}
+              className="w-full bg-foreground text-background font-medium py-4 rounded-xl shadow-lg hover:bg-foreground/90 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3"
             >
-              Add to Vault
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Saving to Vault...
+                </>
+              ) : (
+                "Add to Vault"
+              )}
             </button>
           </div>
         </form>

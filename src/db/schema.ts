@@ -20,8 +20,8 @@ export const products = pgTable("products", {
   originalUrl: text("original_url"),
   imageUrl: text("image_url"),
   categoryId: uuid("category_id").references(() => categories.id),
-  platform: varchar("platform", { length: 64 }),
-  shop: varchar("shop", { length: 256 }),
+  platform: text("platform"),
+  shop: text("shop"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
