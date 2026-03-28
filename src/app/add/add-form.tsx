@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { UploadCloud, Loader2, Link as LinkIcon, DollarSign, Tag, AlignLeft, ShoppingBag, Globe } from "lucide-react";
+import { extractFromImage } from "@/app/actions/ai-actions";
 
 export function AddForm() {
   const [isParsing, setIsParsing] = useState(false);
   const [parsed, setParsed] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -17,22 +21,45 @@ export function AddForm() {
     originalUrl: "",
   });
 
-  const handleSimulateParse = () => {
+  const handleTriggerUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     setIsParsing(true);
-    // Simulate AI delay
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(file);
+      const base64 = await base64Promise;
+
+      // Call AI action
+      const result = await extractFromImage(base64);
+
       setFormData({
         ...formData,
-        name: "Acme Showcase Object",
-        price: "199.99",
-        category: "Decor",
-        description: "A beautifully curated placeholder item identified by the AI vision module.",
-        platform: "Taobao",
-        shop: "Nordic Design Store",
+        name: result.name || result.shop || "New Item",
+        category: result.category || "",
+        description: result.description || "",
+        platform: result.platform || "",
+        shop: result.shop || "",
       });
-      setIsParsing(false);
       setParsed(true);
-    }, 1500);
+    } catch (err) {
+      console.error("Extraction failed:", err);
+      setError(err instanceof Error ? err.message : "Failed to analyze image");
+    } finally {
+      setIsParsing(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -43,24 +70,31 @@ export function AddForm() {
     <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
       {/* Upload Column */}
       <div className="md:col-span-2 space-y-4">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          accept="image/*"
+        />
         <div
-          onClick={handleSimulateParse}
-          className={`aspect-4/5 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-300 ${isParsing ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${parsed ? "bg-muted border-solid" : ""}`}
+          onClick={handleTriggerUpload}
+          className={`aspect-4/5 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-300 ${isParsing ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${parsed ? "bg-muted border-solid" : ""} ${error ? "border-red-500 bg-red-50/10" : ""}`}
         >
           {isParsing ? (
             <div className="flex flex-col items-center gap-4 text-primary animate-pulse">
               <Loader2 className="w-8 h-8 animate-spin" />
-              <span className="text-sm font-medium tracking-wide">Parsing Image...</span>
+              <span className="text-sm font-medium tracking-wide">Analyzing Screenshot...</span>
             </div>
           ) : parsed ? (
             <div className="flex flex-col items-center gap-3 text-muted-foreground">
               <UploadCloud className="w-8 h-8 opacity-50" />
-              <span className="text-sm tracking-wide">Image attached.</span>
+              <span className="text-sm tracking-wide">Analysis complete.</span>
               <button
                 className="mt-2 text-xs font-medium text-primary hover:underline underline-offset-4"
-                onClick={(e) => { e.stopPropagation(); setParsed(false); setFormData({ ...formData, name: "", price: "", category: "", description: "" }) }}
+                onClick={(e) => { e.stopPropagation(); setParsed(false); setFormData({ ...formData, name: "", price: "", category: "", description: "", platform: "", shop: "" }); setError(null); }}
               >
-                Reset
+                Upload another
               </button>
             </div>
           ) : (
@@ -68,9 +102,11 @@ export function AddForm() {
               <div className="p-4 bg-muted rounded-full mb-2">
                 <UploadCloud className="w-6 h-6" />
               </div>
-              <span className="font-medium text-foreground">Click to upload</span>
+              <span className="font-medium text-foreground">
+                {error ? "Try another screenshot" : "Click to upload screenshot"}
+              </span>
               <span className="text-xs text-muted-foreground max-w-xs text-balance">
-                High-res screenshots work best. AI will auto-extract details.
+                {error ? <span className="text-red-500">{error}</span> : "AI will extract store name and product types from your video screenshot."}
               </span>
             </div>
           )}
