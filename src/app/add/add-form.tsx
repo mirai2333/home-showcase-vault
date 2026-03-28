@@ -6,6 +6,7 @@ import { extractFromImage } from "@/app/actions/ai-actions";
 
 export function AddForm() {
   const [isParsing, setIsParsing] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [parsed, setParsed] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,25 +26,70 @@ export function AddForm() {
     fileInputRef.current?.click();
   };
 
+  const compressImage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 2560;
+          const MAX_HEIGHT = 1440;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Quality 0.9 and 2560px max to keep high detail for AI while staying around 2MB
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.5);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsParsing(true);
+    // Limit to 3MB as originally requested
+    if (file.size > 3 * 1024 * 1024) {
+      setError("File is too large. Please upload an image under 3MB.");
+      return;
+    }
+
+    setIsCompressing(true);
+    setIsParsing(false);
     setError(null);
 
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      const base64Promise = new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-      });
-      reader.readAsDataURL(file);
-      const base64 = await base64Promise;
+      // Compress the image before sending to AI - targeting 2MB as requested
+      const compressedBase64 = await compressImage(file);
+
+      setIsCompressing(false);
+      setIsParsing(true);
 
       // Call AI action
-      const result = await extractFromImage(base64);
+      const result = await extractFromImage(compressedBase64);
 
       setFormData({
         ...formData,
@@ -59,6 +105,7 @@ export function AddForm() {
       setError(err instanceof Error ? err.message : "Failed to analyze image");
     } finally {
       setIsParsing(false);
+      setIsCompressing(false);
     }
   };
 
@@ -79,9 +126,14 @@ export function AddForm() {
         />
         <div
           onClick={handleTriggerUpload}
-          className={`aspect-4/5 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-300 ${isParsing ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${parsed ? "bg-muted border-solid" : ""} ${error ? "border-red-500 bg-red-50/10" : ""}`}
+          className={`aspect-4/5 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-300 ${isParsing || isCompressing ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${parsed ? "bg-muted border-solid" : ""} ${error ? "border-red-500 bg-red-50/10" : ""}`}
         >
-          {isParsing ? (
+          {isCompressing ? (
+            <div className="flex flex-col items-center gap-4 text-primary animate-pulse">
+              <Loader2 className="w-8 h-8 animate-spin" />
+              <span className="text-sm font-medium tracking-wide">Compressing...</span>
+            </div>
+          ) : isParsing ? (
             <div className="flex flex-col items-center gap-4 text-primary animate-pulse">
               <Loader2 className="w-8 h-8 animate-spin" />
               <span className="text-sm font-medium tracking-wide">Analyzing Screenshot...</span>

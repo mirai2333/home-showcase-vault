@@ -12,10 +12,10 @@ export async function extractFromImage(base64Image: string) {
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://showcase-vault.vercel.app", 
+        "HTTP-Referer": "https://showcase-vault.vercel.app",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001:free",
+        model: "nvidia/nemotron-nano-12b-v2-vl:free",
         messages: [
           {
             role: "user",
@@ -25,13 +25,15 @@ export async function extractFromImage(base64Image: string) {
                 text: `You are a shopping expert. Look at the screenshot of a store page from a video. 
 Identify the store name, the type of product shown, and the platform.
 
+The result MUST be in the same language as the text in the image (e.g., if the screenshot is in Chinese, provide Chinese results; if in English, provide English results).
+
 Return the result in JSON format with these exact keys:
 - 'shop': Store name (string)
 - 'category': General product type (string, max 3 words)
-- 'platform': Choose exactly one from [PinDuoDuo, TaoBao, 1688, JD]. If unsure, identify it by the UI style or logos.
+- 'platform': Choose exactly one from [拼多多, 淘宝, 1688, 京东]. If unsure, identify it by the UI style or logos.
 - 'description': Short description of what is being recommended (string).
 
-Keep the values concise and profesional.`
+Keep the values concise and professional.`
               },
               {
                 type: "image_url",
@@ -54,7 +56,7 @@ Keep the values concise and profesional.`
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     return JSON.parse(content);
   } catch (e) {
     console.error("AI extraction failed:", e);
