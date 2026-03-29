@@ -74,7 +74,7 @@ export default async function Home({
       }
 
       const results = await query;
-      
+
       // Map DB results to match UI shape
       displayProducts = results.map((r) => ({
         id: r.id,
@@ -85,7 +85,7 @@ export default async function Home({
         category: r.categoryName || "Uncategorized",
         categorySlug: r.categorySlug || "",
         image: r.image || DEFAULT_IMAGE,
-        aspect: "aspect-[3/4]", 
+        aspect: "aspect-[3/4]",
       }));
     } catch (e) {
       console.error("Failed to connect to real DB, falling back to mock", e);
@@ -147,7 +147,7 @@ export default async function Home({
                     alt={product.name}
                     fill
                     unoptimized
-                    priority={index < 2}
+                    priority={index < 5}
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
