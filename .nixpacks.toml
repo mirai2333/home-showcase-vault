@@ -1,16 +1,12 @@
-[variables]
-HTTP_PROXY = "http://192.168.1.23:7890"
-HTTPS_PROXY = "http://192.168.1.23:7890"
-http_proxy = "http://192.168.1.23:7890"
-https_proxy = "http://192.168.1.23:7890"
-ALL_PROXY = "http://192.168.1.23:7890"
-all_proxy = "http://192.168.1.23:7890"
+[env]
+# 🔥 官方二进制缓存镜像（解决 copying path 下载慢）
+substituters="https://mirrors.ustc.edu.cn/nix-channels/store https://cache.nixos.org"
+# 🔥 官方公钥（必须和镜像配对，不可修改）
+trusted-public-keys="cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= mirrors.ustc.edu.cn-1:6n0kA5oG4J6kQ1kF5pF0tP2qG5xH5nL1yE3aU6xW7sA="
 
-# 针对 pnpm/npm 的配置
-npm_config_proxy = "http://192.168.1.23:7890"
-npm_config_https_proxy = "http://192.168.1.23:7890"
+# 🔥 官方 nixpkgs 源码镜像（解决 GitHub 下载失败）
+NIX_PATH="nixpkgs=https://mirrors.ustc.edu.cn/nixpkgs-channels/nixpkgs-unstable.tar.gz"
 
-# 排除本地地址的代理，避免影响本地数据库或内部服务的连接
-NO_PROXY = "localhost,127.0.0.1,192.168.1.21,192.168.1.0/24"
-no_proxy = "localhost,127.0.0.1,192.168.1.21,192.168.1.0/24"
-
+# 🔥 Next.js / Node.js 国内npm镜像（配套加速）
+NPM_CONFIG_REGISTRY="https://registry.npmmirror.com/"
+YARN_REGISTRY="https://registry.npmmirror.com/"
